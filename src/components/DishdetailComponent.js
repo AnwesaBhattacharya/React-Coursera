@@ -5,6 +5,7 @@ import { Control, LocalForm, Form, Errors, actions } from 'react-redux-form';
 import { Link } from 'react-router-dom';
 import { Loading } from './LoadingComponent';
 import { baseUrl } from '../shared/baseUrl';
+import { FadeTransform, Fade, Stagger } from 'react-animation-components';
 
 
 
@@ -140,13 +141,19 @@ class CommentForm extends Component{
       if (dish != null){
           console.log(dish.name)
             return(
-                <Card>
-                    <CardImg top src={baseUrl + dish.image} alt={dish.name} />
-                    <CardBody>
-                      <CardTitle>{dish.name}</CardTitle>
-                      <CardText>{dish.description}</CardText>
-                    </CardBody>
-                </Card>
+                <FadeTransform
+                in
+                transformProps={{
+                    exitTransform: 'scale(0.5) translateY(-50%)'
+                }}>
+            <Card>
+                <CardImg top src={baseUrl + dish.image} alt={dish.name} />
+                <CardBody>
+                    <CardTitle>{dish.name}</CardTitle>
+                    <CardText>{dish.description}</CardText>
+                </CardBody>
+            </Card>
+            </FadeTransform>
             );
         }
         else
@@ -160,21 +167,23 @@ class CommentForm extends Component{
       const monthNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sept','Oct','Nov','Dec'];
       
       if(comments !=null){
-        const Comments=comments.map((comment)=>{
-          var date=new Date(comment.date);
-          return(
-            <div>
-            <ul class="list-unstyled">
-              <li>{comment.comment}</li>
-              <li>--{comment.author},{monthNames[date.getMonth()]} {("0"+date.getDate()).slice(-2)}, {date.getFullYear()}</li>
-              </ul>
-            </div>
-            );
-        })
         return(
-          <div>
+          <div className="col-12 col-md-8 m-1">
           <h4>Comments</h4>
-          {Comments}
+          <ul className="list-unstyled">
+            <Stagger in>
+                        {comments.map((comment) => {
+                            return (
+                                <Fade in>
+                                <li key={comment.id}>
+                                <p>{comment.comment}</p>
+                                <p>-- {comment.author} , {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit'}).format(new Date(Date.parse(comment.date)))}</p>
+                                </li>
+                                </Fade>
+                            );
+                        })}
+            </Stagger>
+          </ul>
           <CommentForm dishId={dishId} postComment={postComment}/>
           </div>
       );
